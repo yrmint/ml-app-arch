@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from backend.routers import health_router, root_router
+from app.routers import health_router, root_router
 
 app = FastAPI()
 
