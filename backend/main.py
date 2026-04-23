@@ -1,13 +1,8 @@
 from fastapi import FastAPI
 
+from backend.routers import health_router, root_router
+
 app = FastAPI()
 
-
-@app.get("/")
-def read_root():
-    return {"message": "Genre classification"}
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+app.include_router(health_router.router)
+app.include_router(root_router.router)
