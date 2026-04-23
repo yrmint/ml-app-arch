@@ -35,7 +35,7 @@ All new work must be done in separate branches:
 
 ## Workflow
 
-1. make sure your branch is up to date:
+1. Make sure your branch is up to date:
 
    ```
     git pull origin main
