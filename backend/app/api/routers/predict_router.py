@@ -22,15 +22,15 @@ async def predict_genre(audio_file: UploadFile = File(...)):
             status_code=415,
             detail="Only supported formats: mp3, wav, flac, ogg")
 
+    audio_bytes = await audio_file.read()
+
+    if len(audio_bytes) == 0:
+        raise HTTPException(
+            status_code=422,
+            detail="Uploaded audio file is empty")
+
     try:
-        # call audio preprocessor later, for now - just read file to memory
-        audio_bytes = await audio_file.read()
-
-        if len(audio_bytes) == 0:
-            raise HTTPException(
-                status_code=422,
-                detail="Uploaded audio file is empty")
-
+        # call audio preprocessor later
         # placeholder, pass tensor later
         predicted_genre, confidence, top_3 = classifier.predict(None)
 
