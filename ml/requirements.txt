@@ -1,0 +1,6 @@
+transformers
+torch
+librosa
+soundfile
+pytest
+flake8
