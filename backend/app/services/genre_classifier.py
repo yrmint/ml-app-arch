@@ -16,7 +16,8 @@ class GenreClassifier:
         print(f"[{settings.APP_NAME}] Model loaded to device: {self.device}")
         self.model = "mock_model"   # using mocks for now
 
-    def predict(self, audio_tensor) -> Tuple[str, float, List[Dict[str, float]]]:
+    def predict(self, audio_tensor) ->\
+            Tuple[str, float, List[Dict[str, float]]]:
         """
         Placeholder prediction.
         In the future: audio preprocessing + model inference
