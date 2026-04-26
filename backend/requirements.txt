@@ -5,3 +5,4 @@ pydantic-extra-types==2.11.1
 pydantic-settings==2.13.1
 pydantic_core==2.41.5
 torch==2.10.0
+numpy==2.4.4
