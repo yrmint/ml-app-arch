@@ -57,3 +57,9 @@ class GenreClassifier:
         confidence = top_3[0]["confidence"]
 
         return predicted_genre, confidence, top_3
+
+    def is_model_loaded(self) -> bool:
+        """
+        Returns whether the classifier currently has a loaded model object.
+        """
+        return self.model is not None
