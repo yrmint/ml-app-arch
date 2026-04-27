@@ -63,3 +63,29 @@ class GenreClassifier:
         Returns whether the classifier currently has a loaded model object.
         """
         return self.model is not None
+
+    def get_current_model_version(self) -> str:
+        """
+        Returns the currently active model version.
+        """
+        return "mock-v1"
+
+    def get_available_model_versions(self) -> list[dict[str, str | bool]]:
+        """
+        Returns available model versions.
+
+        This is a temporary versioning skeleton for future model update
+        and rollback support.
+        """
+        return [
+            {
+                "version": "mock-v1",
+                "is_active": True,
+                "description": "Initial mock backend inference model",
+            },
+            {
+                "version": "future-ml-v1",
+                "is_active": False,
+                "description": "Reserved for future trained ML model integration",
+            },
+        ]
