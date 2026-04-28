@@ -57,3 +57,18 @@ def test_prediction_output_format():
     assert result["top_predictions"][1]["genre"] == "Pop"
     assert result["top_predictions"][2]["genre"] == "Blues"
     assert result["model"] == "dima806/music_genres_classification"
+
+
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "test.wav",
+        "test.mp3",
+        "test.flac",
+        "test.ogg",
+        "test.m4a",
+    ],
+)
+def test_supported_audio_extensions_are_accepted(filename):
+    classifier = GenreClassifier(classifier=lambda _: [])
+    classifier.validate_audio(b"fake audio bytes", filename)
