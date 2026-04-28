@@ -1,5 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
+
+from app.core.config import settings
 from app.main import app
 
 client = TestClient(app)
@@ -82,3 +84,24 @@ def test_predict_supported_formats(filename: str, content_type: str):
 
     assert response.status_code == 200
     assert "predicted_genre" in response.json()
+
+
+def test_predict_endpoint_large_file_rejected(monkeypatch):
+    """Test passing an audio file that exceeds upload size limit"""
+    monkeypatch.setattr(settings, "MAX_UPLOAD_SIZE_MB", 1)
+
+    large_audio_content = b"x" * (1 * 1024 * 1024 + 1)
+
+    response = client.post(
+        "/predict",
+        files={
+            "audio_file": (
+                "large_audio.wav",
+                large_audio_content,
+                "audio/wav",
+            )
+        },
+    )
+
+    assert response.status_code == 413
+    assert "too large" in response.json()["detail"].lower()
