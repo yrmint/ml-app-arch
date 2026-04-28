@@ -86,6 +86,9 @@ class GenreClassifier:
             {
                 "version": "future-ml-v1",
                 "is_active": False,
-                "description": "Reserved for future trained ML model integration",
+                "description": (
+                    "Reserved for future trained ML model "
+                    "integration"
+                ),
             },
         ]

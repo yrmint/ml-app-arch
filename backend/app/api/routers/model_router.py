@@ -2,8 +2,10 @@ from fastapi import APIRouter
 
 from app.core.config import settings
 from app.models.model_status_model import ModelStatusResponse
-from app.models.model_version_model import ModelVersionsResponse
-from app.models.model_version_model import ModelVersionItem
+from app.models.model_version_model import (
+    ModelVersionItem,
+    ModelVersionsResponse,
+)
 from app.services.genre_classifier import GenreClassifier
 
 

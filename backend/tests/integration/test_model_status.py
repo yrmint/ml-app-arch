@@ -19,6 +19,7 @@ def test_model_status_endpoint_success():
     assert data["supported_formats"] == [".mp3", ".wav", ".flac", ".ogg"]
     assert data["max_upload_size_mb"] == 25
 
+
 def test_model_versions_endpoint_success():
     """Test model versions endpoint returns available model versions."""
     response = client.get("/model/versions")
