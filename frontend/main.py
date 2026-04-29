@@ -124,14 +124,15 @@ def main():
                      settings.SUPPORTED_EXTENSIONS]
 
     if st.session_state.get("uploader") is None:
-        st.markdown("""
-        <div class="description-block">
-            <h3>Автоматическое определение музыкальных жанров</h3>
-            <p>Профессиональный сервис для мгновенной классификации 
-            аудиокомпозиций с использованием алгоритмов глубокого обучения.</p>
-        </div>
-        <hr>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="description-block">'
+            '<h3>Автоматическое определение музыкальных жанров</h3>'
+            '<p>Профессиональный сервис для мгновенной классификации '
+            'аудиокомпозиций с использованием алгоритмов '
+            'глубокого обучения.</p>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
         c1, c2, c3 = st.columns(3, gap="small")
         with c1:
