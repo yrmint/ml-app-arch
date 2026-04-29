@@ -9,28 +9,31 @@ import requests
 FRONTEND_DIR = str(pathlib.Path(__file__).parent.parent)
 if FRONTEND_DIR not in sys.path:
     sys.path.insert(0, FRONTEND_DIR)
-os.environ["PYTHONPATH"] = FRONTEND_DIR + os.pathsep + os.environ.get("PYTHONPATH", "")
+os.environ["PYTHONPATH"] = FRONTEND_DIR + os.pathsep + os.environ.get(
+    "PYTHONPATH", "")
 APP_PATH = "frontend/main.py"
 
 
 def test_backend_connection_error():
-    # Проверка обработки сетевой ошибки (ConnectionError) при обращении к API бэкенда
+    # Проверка обработки сетевой ошибки при обращении к API бэкенда
     at = AppTest.from_file(APP_PATH).run()
     if at.exception:
         pytest.fail(f"App failed to load: {at.exception[0]}")
 
-    with patch("requests.post", side_effect=requests.exceptions.ConnectionError):
+    with patch("requests.post",
+               side_effect=requests.exceptions.ConnectionError):
         at.file_uploader[0].upload("test.mp3", b"fake audio data").run()
 
         if len(at.button) > 0:
             at.button[0].click().run()
-            assert any("Проблема с сетевым соединением" in err.value for err in at.error)
+            assert any("Проблема с сетевым соединением" in err.value for err in
+                       at.error)
         else:
             pytest.fail("Кнопка классификации не появилась")
 
 
 def test_error_413_payload_too_large():
-    # Проверка вывода сообщения об ошибке, если сервер вернул статус 413 (файл слишком большой)
+    # Проверка вывода сообщения об ошибке, статус 413 (файл слишком большой)
     at = AppTest.from_file(APP_PATH).run()
 
     with patch("requests.post") as mock_post:
@@ -46,7 +49,7 @@ def test_error_413_payload_too_large():
 
 
 def test_malformed_json_response():
-    # Проверка устойчивости приложения к некорректным данным в формате JSON от сервера
+    # Проверка устойчивости приложения к некорректным данным JSON от сервера
     at = AppTest.from_file(APP_PATH).run()
 
     with patch("requests.post") as mock_post:
@@ -59,7 +62,9 @@ def test_malformed_json_response():
 
         if len(at.button) > 0:
             at.button[0].click().run()
-            assert any("Результаты анализа не получены" in warn.value for warn in at.warning)
+            assert any(
+                "Результаты анализа не получены" in warn.value for warn in
+                at.warning)
 
 
 def test_file_uploader_allowed_types():
@@ -68,7 +73,8 @@ def test_file_uploader_allowed_types():
 
     if len(at.file_uploader) > 0:
         uploader = at.file_uploader[0]
-        assert getattr(uploader, "label", "") != "", "У загрузчика должен быть установлен текст (label)"
+        assert getattr(uploader, "label", "") != "", \
+            "У загрузчика должен быть установлен текст (label)"
     else:
         pytest.fail("Виджет file_uploader не найден на странице")
 
@@ -82,6 +88,7 @@ def test_backend_timeout():
 
         if len(at.button) > 0:
             at.button[0].click().run()
-            assert any("Проблема с сетевым соединением" in err.value for err in at.error)
+            assert any("Проблема с сетевым соединением" in err.value for err in
+                       at.error)
         else:
             pytest.fail("Кнопка классификации не появилась")

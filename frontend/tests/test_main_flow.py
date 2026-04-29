@@ -8,7 +8,8 @@ from unittest.mock import patch, MagicMock
 FRONTEND_DIR = str(pathlib.Path(__file__).parent.parent)
 if FRONTEND_DIR not in sys.path:
     sys.path.insert(0, FRONTEND_DIR)
-os.environ["PYTHONPATH"] = FRONTEND_DIR + os.pathsep + os.environ.get("PYTHONPATH", "")
+os.environ["PYTHONPATH"] = FRONTEND_DIR + os.pathsep + os.environ.get(
+    "PYTHONPATH", "")
 APP_PATH = "frontend/main.py"
 
 
@@ -24,7 +25,8 @@ def test_initial_ui_state():
 
 
 def test_successful_classification_flow():
-    # Проверка основного сценария: загрузка файла -> нажатие кнопки -> получение результата
+    # Проверка основного сценария
+    # Загрузка файла -> нажатие кнопки -> отображеие результата
     at = AppTest.from_file(APP_PATH).run()
 
     with patch("requests.post") as mock_post:
@@ -46,9 +48,12 @@ def test_successful_classification_flow():
         if len(at.button) > 0:
             at.button[0].click().run()
         else:
-            pytest.fail("Кнопка классификации не появилась после загрузки файла")
+            pytest.fail(
+                "Кнопка классификации не появилась после загрузки файла")
         results_found = any("Classical" in s.value for s in at.success) or any(
             "Classical" in w.value for w in at.markdown)
 
-        assert results_found, "Результат классификации не отобразился на странице"
+        assert results_found, (
+            "Результат классификации не отобразился на странице"
+        )
         assert not at.exception

@@ -18,6 +18,7 @@ class FrontendSettings(BaseSettings):
     )
     MAX_AUDIO_LENGTH_SEC: float = 30.0
     TIMEOUT: int = 60
+    DEFAULT_COVER_PATH: str = "frontend/assets/default_cover.jpg"
 
     model_config = SettingsConfigDict(
         env_file=".env",
