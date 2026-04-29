@@ -95,7 +95,9 @@ class GenreClassifier:
 
         except subprocess.CalledProcessError as exc:
             error_message = exc.stderr.decode(errors="ignore")
-            raise ValueError(f"FFmpeg failed to decode audio: {error_message}") from exc
+            raise ValueError(f""
+                             f"FFmpeg failed to decode audio: "
+                             f"{error_message}") from exc
 
         finally:
             if temp_input_path is not None:
@@ -152,6 +154,4 @@ class GenreClassifier:
                 "sampling_rate": sampling_rate,
             }
         )
-
         return self.format_predictions(predictions)
-    
