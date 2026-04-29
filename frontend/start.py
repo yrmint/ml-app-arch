@@ -1,0 +1,46 @@
+import sys
+import subprocess
+from pathlib import Path
+
+current_dir = Path(__file__).parent
+sys.path.append(str(current_dir))
+
+try:
+    from core.config import settings
+except ImportError:
+    print("Ошибка: Не удалось найти core.config.")
+    sys.exit(1)
+
+
+def run():
+    """Запуск интерфейса Streamlit с параметрами из конфига."""
+
+    app_path = current_dir / "main.py"
+
+    if not app_path.exists():
+        print(f"Ошибка: Файл интерфейса не найден по пути {app_path}")
+        sys.exit(1)
+
+    cmd = [
+        "streamlit",
+        "run",
+        str(app_path),
+        "--server.maxUploadSize",
+        str(settings.MAX_UPLOAD_SIZE_MB),
+        "--server.port",
+        "8501",  # Стандартный порт, можно тоже вынести в конфиг
+    ]
+
+    print(f"Запуск {settings.APP_TITLE}...")
+    print(f"Лимит загрузки: {settings.MAX_UPLOAD_SIZE_MB} MB")
+
+    try:
+        subprocess.run(cmd, check=True)
+    except KeyboardInterrupt:
+        print("\nПриложение остановлено пользователем.")
+    except Exception as e:
+        print(f"Ошибка при запуске Streamlit: {e}")
+
+
+if __name__ == "__main__":
+    run()
