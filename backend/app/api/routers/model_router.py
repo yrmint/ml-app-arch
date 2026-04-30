@@ -1,12 +1,12 @@
 from fastapi import APIRouter
 
-from app.core.config import settings
-from app.models.model_status_model import ModelStatusResponse
-from app.models.model_version_model import (
+from backend.app.core.config import settings
+from backend.app.models.model_status_model import ModelStatusResponse
+from backend.app.models.model_version_model import (
     ModelVersionItem,
     ModelVersionsResponse,
 )
-from app.services.genre_classifier import GenreClassifier
+from backend.app.services.genre_classifier import GenreClassifier
 
 
 router = APIRouter(

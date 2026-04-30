@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 
 import torch
 
-from app.core.config import settings
+from backend.app.core.config import settings
 
 
 class GenreClassifier:

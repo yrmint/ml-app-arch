@@ -2,9 +2,9 @@ from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
-from app.core.config import settings
-from app.models.prediction_model import PredictionResponse, Top3Item
-from app.services.genre_classifier import GenreClassifier
+from backend.app.core.config import settings
+from backend.app.models.prediction_model import PredictionResponse, Top3Item
+from backend.app.services.genre_classifier import GenreClassifier
 
 
 router = APIRouter(
