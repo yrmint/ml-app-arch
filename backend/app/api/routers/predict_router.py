@@ -1,18 +1,17 @@
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from backend.app.core.config import settings
 from backend.app.models.prediction_model import PredictionResponse, Top3Item
 from backend.app.services.genre_classifier import GenreClassifier
+from backend.app.services.genre_service import get_genre_classifier
 
 
 router = APIRouter(
     prefix="/predict",
     tags=["Prediction"],
 )
-
-classifier = GenreClassifier()
 
 
 def _get_supported_formats_text() -> str:
@@ -23,7 +22,10 @@ def _get_supported_formats_text() -> str:
 
 
 @router.post("/", response_model=PredictionResponse)
-async def predict_genre(audio_file: UploadFile = File(...)):
+async def predict_genre(
+    audio_file: UploadFile = File(...),
+    classifier: GenreClassifier = Depends(get_genre_classifier),
+):
     """
     Receives an audio file and returns predicted genre + top-3.
 
@@ -61,12 +63,11 @@ async def predict_genre(audio_file: UploadFile = File(...)):
         )
 
     try:
-        # Temporary mock call.
-        # Later this service will receive audio_bytes and filename.
         predicted_genre, confidence, top_3 = classifier.predict(
-              audio_bytes=audio_bytes,
-              filename=filename,
+            audio_bytes=audio_bytes,
+            filename=filename,
         )
+
         return PredictionResponse(
             predicted_genre=predicted_genre,
             confidence=confidence,
