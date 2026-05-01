@@ -1,32 +1,13 @@
-import time
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
-import torch
-
-from backend.app.core.config import settings
+from ml.core.config import settings as ml_settings
+from ml.inference.genre_classifier import GenreClassifier as MLGenreClassifier
 
 
 class GenreClassifier:
-    def __init__(self):
-        self.model = None
-        self.device = torch.device(settings.DEVICE)
-        self.genres = [
-            "Blues",
-            "Classical",
-            "Country",
-            "Disco",
-            "Hip-Hop",
-            "Jazz",
-            "Metal",
-            "Pop",
-            "Reggae",
-            "Rock",
-        ]
-        self.load_model()
-
-    def load_model(self):
-        print(f"[{settings.APP_NAME}] Model loaded to device: {self.device}")
-        self.model = "mock_model"  # using mocks for now
+    def __init__(self, ml_classifier: MLGenreClassifier | None = None) -> None:
+        self.ml_classifier = ml_classifier or MLGenreClassifier()
+        self.device = ml_settings.DEVICE
 
     def predict(
         self,
@@ -34,61 +15,48 @@ class GenreClassifier:
         filename: str,
     ) -> Tuple[str, float, List[Dict[str, float]]]:
         """
-        Placeholder prediction method.
+        Predicts music genre using the shared ML package classifier.
 
-        The method already receives raw audio bytes and filename,
-        so the backend is ready for future integration with a real ML model.
+        Backend response format is kept unchanged for API compatibility.
         """
-        if not audio_bytes:
-            raise ValueError("Audio bytes are empty")
-
-        if not filename:
-            raise ValueError("Audio filename is missing")
-
-        time.sleep(1)  # imitate model inference
+        result = self.ml_classifier.predict(
+            audio_bytes=audio_bytes,
+            filename=filename,
+        )
 
         top_3 = [
-            {"genre": "Rock", "confidence": 0.87},
-            {"genre": "Metal", "confidence": 0.09},
-            {"genre": "Pop", "confidence": 0.03},
+            {
+                "genre": result["genre"],
+                "confidence": result["confidence"],
+            },
+            *result["top_predictions"][:2],
         ]
 
-        predicted_genre = top_3[0]["genre"]
-        confidence = top_3[0]["confidence"]
-
-        return predicted_genre, confidence, top_3
+        return result["genre"], result["confidence"], top_3
 
     def is_model_loaded(self) -> bool:
         """
-        Returns whether the classifier currently has a loaded model object.
+        Returns whether the wrapped ML classifier is initialized.
         """
-        return self.model is not None
+        return self.ml_classifier is not None
 
     def get_current_model_version(self) -> str:
         """
-        Returns the currently active model version.
+        Returns the currently active model identifier.
         """
-        return "mock-v1"
+        return ml_settings.MODEL_NAME
 
-    def get_available_model_versions(self) -> list[dict[str, str | bool]]:
+    def get_available_model_versions(self) -> list[dict[str, Any]]:
         """
         Returns available model versions.
 
-        This is a temporary versioning skeleton for future model update
-        and rollback support.
+        The current backend exposes the active ML model as the only
+        available version until real model registry support is implemented.
         """
         return [
             {
-                "version": "mock-v1",
+                "version": ml_settings.MODEL_NAME,
                 "is_active": True,
-                "description": "Initial mock backend inference model",
-            },
-            {
-                "version": "future-ml-v1",
-                "is_active": False,
-                "description": (
-                    "Reserved for future trained ML model "
-                    "integration"
-                ),
+                "description": "Active ML package audio classification model",
             },
         ]

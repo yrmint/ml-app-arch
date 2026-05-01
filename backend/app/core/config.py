@@ -7,14 +7,15 @@ class Settings(BaseSettings):
     MODEL_PATH: str = "models/current_model.pth"
     DEVICE: str = "cpu"
 
-    SAMPLE_RATE: int = 22050
+    SAMPLE_RATE: int = 16000
     MAX_AUDIO_LENGTH_SEC: float = 30.0
 
     SUPPORTED_AUDIO_EXTENSIONS: tuple[str, ...] = (
-        ".mp3",
         ".wav",
+        ".mp3",
         ".flac",
         ".ogg",
+        ".m4a",
     )
     MAX_UPLOAD_SIZE_MB: int = 25
 

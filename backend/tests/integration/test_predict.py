@@ -13,11 +13,13 @@ def test_predict_endpoint_success():
 
     response = client.post(
         "/predict",
-        files={"audio_file": (
-            "test_audio.wav",
-            test_audio_content,
-            "audio/wav"
-        )}
+        files={
+            "audio_file": (
+                "test_audio.wav",
+                test_audio_content,
+                "audio/wav",
+            )
+        },
     )
 
     assert response.status_code == 200
@@ -44,7 +46,7 @@ def test_predict_endpoint_empty_file():
     """Test passing empty file"""
     response = client.post(
         "/predict",
-        files={"audio_file": ("empty.wav", b"", "audio/wav")}
+        files={"audio_file": ("empty.wav", b"", "audio/wav")},
     )
 
     assert response.status_code == 422
@@ -55,7 +57,7 @@ def test_predict_endpoint_unsupported_format():
     """Test passing file with unsupported file format"""
     response = client.post(
         "/predict",
-        files={"audio_file": ("document.txt", b"not an audio", "text/plain")}
+        files={"audio_file": ("document.txt", b"not an audio", "text/plain")},
     )
 
     assert response.status_code == 415
@@ -68,18 +70,22 @@ def test_predict_endpoint_no_file():
     assert response.status_code == 422
 
 
-@pytest.mark.parametrize("filename, content_type", [
-    ("song.mp3", "audio/mpeg"),
-    ("track.flac", "audio/flac"),
-    ("music.ogg", "audio/ogg"),
-])
+@pytest.mark.parametrize(
+    "filename, content_type",
+    [
+        ("song.mp3", "audio/mpeg"),
+        ("track.flac", "audio/flac"),
+        ("music.ogg", "audio/ogg"),
+        ("voice.m4a", "audio/mp4"),
+    ],
+)
 def test_predict_supported_formats(filename: str, content_type: str):
     """Test different supported formats"""
     test_content = b"test audio content" * 500
 
     response = client.post(
         "/predict",
-        files={"audio_file": (filename, test_content, content_type)}
+        files={"audio_file": (filename, test_content, content_type)},
     )
 
     assert response.status_code == 200
