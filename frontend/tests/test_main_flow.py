@@ -1,10 +1,11 @@
-import os
 import pytest
 from streamlit.testing.v1 import AppTest
 from unittest.mock import patch, MagicMock
 from frontend.core.config import settings
+from pathlib import Path
 
-APP_PATH = os.path.join(os.getcwd(), "main.py")
+BASE_DIR = Path(__file__).resolve().parent.parent
+APP_PATH = str(BASE_DIR / "main.py")
 
 
 def test_initial_ui_state():
@@ -15,7 +16,7 @@ def test_initial_ui_state():
     at = AppTest.from_file(APP_PATH).run()
 
     assert not at.exception
-    assert at.title[0].value == settings.APP_TITLE
+    assert at.title[0].value == f"🎵 {settings.APP_TITLE}"
     assert len(at.get("file_uploader")) > 0
     assert len(at.get("button")) == 0
 

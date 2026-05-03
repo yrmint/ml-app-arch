@@ -1,10 +1,11 @@
-import os
 import pytest
 import requests
 from streamlit.testing.v1 import AppTest
 from unittest.mock import patch, MagicMock
+from pathlib import Path
 
-APP_PATH = os.path.join(os.getcwd(), "main.py")
+BASE_DIR = Path(__file__).resolve().parent.parent
+APP_PATH = str(BASE_DIR / "main.py")
 
 
 def test_backend_connection_error():

@@ -1,4 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class FrontendSettings(BaseSettings):
@@ -19,8 +22,8 @@ class FrontendSettings(BaseSettings):
     )
     MAX_AUDIO_LENGTH_SEC: float = 30.0
     TIMEOUT: int = 60
-    DEFAULT_COVER_PATH: str = "frontend/assets/default_cover.jpg"
-    CSS_PATH: str = "frontend/assets/style.css"
+    DEFAULT_COVER_PATH: str = str(BASE_DIR / "assets" / "default_cover.jpg")
+    CSS_PATH: str = str(BASE_DIR / "assets" / "style.css")
 
     model_config = SettingsConfigDict(
         env_file=".env",
