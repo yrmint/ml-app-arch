@@ -2,19 +2,16 @@ import sys
 import subprocess
 from pathlib import Path
 
-current_dir = Path(__file__).parent
-sys.path.append(str(current_dir))
-
 try:
-    from core.config import settings
+    from frontend.core.config import settings
 except ImportError:
-    print("Ошибка: Не удалось найти core.config.")
+    print("Ошибка: Не удалось найти frontend.core.config.")
     sys.exit(1)
 
 
 def run():
     """Запуск интерфейса Streamlit с параметрами из конфига."""
-
+    current_dir = Path(__file__).parent
     app_path = current_dir / "main.py"
 
     if not app_path.exists():
@@ -28,10 +25,11 @@ def run():
         "--server.maxUploadSize",
         str(settings.MAX_UPLOAD_SIZE_MB),
         "--server.port",
-        "8501",  # Стандартный порт, можно тоже вынести в конфиг
+        str(settings.FRONTEND_PORT),
     ]
 
     print(f"Запуск {settings.APP_TITLE}...")
+    print(f"Локальный порт: {settings.FRONTEND_PORT}")
     print(f"Лимит загрузки: {settings.MAX_UPLOAD_SIZE_MB} MB")
 
     try:

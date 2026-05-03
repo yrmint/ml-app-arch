@@ -8,6 +8,7 @@ class FrontendSettings(BaseSettings):
 
     APP_TITLE: str = "Music Genre Classifier"
     BACKEND_URL: str = "http://localhost:8000"
+    FRONTEND_PORT: int = 8501
     MAX_UPLOAD_SIZE_MB: int = 25
     SUPPORTED_EXTENSIONS: tuple[str, ...] = (
         ".wav",
@@ -19,6 +20,7 @@ class FrontendSettings(BaseSettings):
     MAX_AUDIO_LENGTH_SEC: float = 30.0
     TIMEOUT: int = 60
     DEFAULT_COVER_PATH: str = "frontend/assets/default_cover.jpg"
+    CSS_PATH: str = "frontend/assets/style.css"
 
     model_config = SettingsConfigDict(
         env_file=".env",
