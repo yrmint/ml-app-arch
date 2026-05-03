@@ -1,19 +1,10 @@
-import sys
 import os
-import pathlib
 import pytest
 import requests
 from streamlit.testing.v1 import AppTest
 from unittest.mock import patch, MagicMock
 
-FRONTEND_DIR = str(pathlib.Path(__file__).parent.parent)
-if FRONTEND_DIR not in sys.path:
-    sys.path.insert(0, FRONTEND_DIR)
-
-os.environ["PYTHONPATH"] = FRONTEND_DIR + os.pathsep + os.environ.get(
-    "PYTHONPATH", ""
-)
-APP_PATH = "frontend/main.py"
+APP_PATH = os.path.join(os.getcwd(), "main.py")
 
 
 def test_backend_connection_error():
@@ -102,7 +93,7 @@ def test_backend_timeout():
     with patch("requests.post", side_effect=requests.exceptions.Timeout):
         at.file_uploader[0].upload("track.mp3", b"audio").run()
 
-        if at.button:
+        if len(at.button) > 0:
             at.button[0].click().run()
             expected = "Сервис отвечает слишком долго"
             assert any(expected in err.value for err in at.error)

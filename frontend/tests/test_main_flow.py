@@ -1,18 +1,10 @@
-import sys
 import os
-import pathlib
 import pytest
 from streamlit.testing.v1 import AppTest
 from unittest.mock import patch, MagicMock
+from frontend.core.config import settings
 
-FRONTEND_DIR = str(pathlib.Path(__file__).parent.parent)
-if FRONTEND_DIR not in sys.path:
-    sys.path.insert(0, FRONTEND_DIR)
-
-os.environ["PYTHONPATH"] = FRONTEND_DIR + os.pathsep + os.environ.get(
-    "PYTHONPATH", ""
-)
-APP_PATH = "frontend/main.py"
+APP_PATH = os.path.join(os.getcwd(), "main.py")
 
 
 def test_initial_ui_state():
@@ -23,7 +15,7 @@ def test_initial_ui_state():
     at = AppTest.from_file(APP_PATH).run()
 
     assert not at.exception
-    assert len(at.get("title")) > 0
+    assert at.title[0].value == settings.APP_TITLE
     assert len(at.get("file_uploader")) > 0
     assert len(at.get("button")) == 0
 
