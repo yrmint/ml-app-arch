@@ -19,6 +19,8 @@ def run():
         sys.exit(1)
 
     cmd = [
+        sys.executable,
+        "-m",
         "streamlit",
         "run",
         str(app_path),
