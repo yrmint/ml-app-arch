@@ -181,3 +181,24 @@ pyrightconfig.json
 [Ss]cripts
 pyvenv.cfg
 pip-selfcheck.json
+### Project-specific ML files ###
+# Local audio samples and datasets
+ml/samples/
+samples/
+data/
+datasets/
+
+# Audio files
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+
+# Large model/checkpoint files
+models/
+*.pt
+*.pth
+*.onnx
+*.pkl
+*.joblib
