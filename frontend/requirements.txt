@@ -1,0 +1,6 @@
+mutagen==1.47.0
+Pillow==12.2.0
+pydantic-settings==2.14.0
+pytest==9.0.3
+requests==2.33.1
+streamlit==1.56.0

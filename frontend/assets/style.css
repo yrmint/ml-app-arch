@@ -1,0 +1,99 @@
+/* Общие настройки */
+.block-container {
+    padding-top: 2rem !important;
+    padding-bottom: 0rem !important;
+}
+
+/* Отступ после плеера */
+div.stAudio {
+    margin-bottom: 2rem;
+}
+
+/* Настройки гибкости колонок */
+[data-testid="stHorizontalBlock"] {
+    display: flex;
+    align-items: stretch;
+    padding-top: 0.5rem;
+}
+
+[data-testid="column"] {
+    display: flex;
+}
+
+/* Вспомогательные классы */
+.spacer {
+    margin-top: 1.5rem;
+}
+
+.file-info {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+/* Блок призыва к действию (CTA) */
+.cta-wrapper {
+    padding-top: 0.75rem;
+    padding-bottom: 0.5rem;
+}
+
+.cta-text {
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* Описание сервиса */
+.description-block h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+}
+
+.description-block p {
+    margin-bottom: 0;
+}
+
+/* Горизонтальная линия */
+hr {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+/* --- СТИЛИ ДЛЯ КАРТОЧЕК --- */
+
+/* Стили для заголовка карточки */
+.card-header {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-color);
+    margin-bottom: 0.6rem;
+    text-align: center;
+    display: block;
+}
+
+/* Стили для описания */
+.card-content {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 1.5rem !important;
+    display: block;
+}
+
+/* Таргет на внутренний блок контейнера с рамкой */
+[data-testid="stVerticalBlockBorderWrapper"] > div:nth-child(2) {
+    padding-bottom: 1.5rem !important;
+}
+
+/* Отступ последнего элемента внутри рамки*/
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] > div:last-child {
+    margin-bottom: 1.5rem !important;
+    padding-bottom: 0.1rem !important;
+}
+
+/* Скрываем стандартную надпись загрузчика */
+[data-testid="stFileUploaderFileData"] {
+    display: none;
+}

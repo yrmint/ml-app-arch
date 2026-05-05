@@ -1,0 +1,36 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+class FrontendSettings(BaseSettings):
+    """
+    Настройки фронтенд-приложения.
+    """
+
+    APP_TITLE: str = "Music Genre Classifier"
+    BACKEND_URL: str = "http://localhost:8000"
+    FRONTEND_PORT: int = 8501
+    MAX_UPLOAD_SIZE_MB: int = 25
+    SUPPORTED_EXTENSIONS: tuple[str, ...] = (
+        ".wav",
+        ".mp3",
+        ".flac",
+        ".ogg",
+        ".m4a",
+    )
+    MAX_AUDIO_LENGTH_SEC: float = 30.0
+    TIMEOUT: int = 60
+    DEFAULT_COVER_PATH: str = str(BASE_DIR / "assets" / "default_cover.jpg")
+    CSS_PATH: str = str(BASE_DIR / "assets" / "style.css")
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        case_sensitive=False,
+    )
+
+
+settings = FrontendSettings()
