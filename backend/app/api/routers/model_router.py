@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from backend.app.core.config import settings
 from backend.app.models.model_status_model import ModelStatusResponse
@@ -6,7 +6,8 @@ from backend.app.models.model_version_model import (
     ModelVersionItem,
     ModelVersionsResponse,
 )
-from backend.app.services.genre_classifier import GenreClassifier
+from backend.app.services.genre_classifier_facade import GenreClassifierFacade
+from backend.app.services.genre_service import get_genre_classifier
 
 
 router = APIRouter(
@@ -14,11 +15,11 @@ router = APIRouter(
     tags=["Model"],
 )
 
-classifier = GenreClassifier()
-
 
 @router.get("/status", response_model=ModelStatusResponse)
-async def get_model_status():
+async def get_model_status(
+    classifier: GenreClassifierFacade = Depends(get_genre_classifier),
+):
     """
     Returns current model and inference configuration status.
     """
@@ -31,7 +32,9 @@ async def get_model_status():
 
 
 @router.get("/versions", response_model=ModelVersionsResponse)
-async def get_model_versions():
+async def get_model_versions(
+    classifier: GenreClassifierFacade = Depends(get_genre_classifier),
+):
     """
     Returns available model versions for future update and rollback support.
     """
