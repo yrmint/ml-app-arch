@@ -1,11 +1,15 @@
 import pytest
 
 from backend.app.main import app
+from backend.app.services.genre_classifier_facade import GenreClassifierFacade
 from backend.app.services.genre_service import get_genre_classifier
 
 
-class FakeGenreClassifier:
+class FakeGenreClassifier(GenreClassifierFacade):
     device = "cpu"
+
+    def __init__(self) -> None:
+        pass
 
     def predict(self, audio_bytes: bytes, filename: str):
         return (

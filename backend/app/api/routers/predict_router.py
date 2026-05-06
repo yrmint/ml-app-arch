@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from backend.app.core.config import settings
 from backend.app.models.prediction_model import PredictionResponse, Top3Item
-from backend.app.services.genre_classifier import GenreClassifier
+from backend.app.services.genre_classifier_facade import GenreClassifierFacade
 from backend.app.services.genre_service import get_genre_classifier
 
 
@@ -24,7 +24,7 @@ def _get_supported_formats_text() -> str:
 @router.post("/", response_model=PredictionResponse)
 async def predict_genre(
     audio_file: UploadFile = File(...),
-    classifier: GenreClassifier = Depends(get_genre_classifier),
+    classifier: GenreClassifierFacade = Depends(get_genre_classifier),
 ):
     """
     Receives an audio file and returns predicted genre + top-3.

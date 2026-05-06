@@ -6,7 +6,7 @@ from backend.app.models.model_version_model import (
     ModelVersionItem,
     ModelVersionsResponse,
 )
-from backend.app.services.genre_classifier import GenreClassifier
+from backend.app.services.genre_classifier_facade import GenreClassifierFacade
 from backend.app.services.genre_service import get_genre_classifier
 
 
@@ -18,7 +18,7 @@ router = APIRouter(
 
 @router.get("/status", response_model=ModelStatusResponse)
 async def get_model_status(
-    classifier: GenreClassifier = Depends(get_genre_classifier),
+    classifier: GenreClassifierFacade = Depends(get_genre_classifier),
 ):
     """
     Returns current model and inference configuration status.
@@ -33,7 +33,7 @@ async def get_model_status(
 
 @router.get("/versions", response_model=ModelVersionsResponse)
 async def get_model_versions(
-    classifier: GenreClassifier = Depends(get_genre_classifier),
+    classifier: GenreClassifierFacade = Depends(get_genre_classifier),
 ):
     """
     Returns available model versions for future update and rollback support.

@@ -4,7 +4,7 @@ from ml.core.config import settings as ml_settings
 from ml.inference.genre_classifier import GenreClassifier as MLGenreClassifier
 
 
-class GenreClassifier:
+class GenreClassifierFacade:
     def __init__(self, ml_classifier: MLGenreClassifier | None = None) -> None:
         self.ml_classifier = ml_classifier or MLGenreClassifier()
         self.device = ml_settings.DEVICE
@@ -24,15 +24,11 @@ class GenreClassifier:
             filename=filename,
         )
 
-        top_3 = [
-            {
-                "genre": result["genre"],
-                "confidence": result["confidence"],
-            },
-            *result["top_predictions"][:2],
-        ]
-
-        return result["genre"], result["confidence"], top_3
+        return (
+            result["genre"],
+            result["confidence"],
+            result["top_predictions"],
+        )
 
     def is_model_loaded(self) -> bool:
         """
