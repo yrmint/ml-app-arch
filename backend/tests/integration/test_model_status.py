@@ -14,9 +14,11 @@ def test_model_status_endpoint_success():
 
     data = response.json()
 
+    expected_formats = [".wav", ".mp3", ".flac", ".ogg", ".m4a"]
+
     assert data["model_loaded"] is True
     assert data["device"] == "cpu"
-    assert data["supported_formats"] == [".mp3", ".wav", ".flac", ".ogg"]
+    assert data["supported_formats"] == expected_formats
     assert data["max_upload_size_mb"] == 25
 
 
@@ -28,10 +30,10 @@ def test_model_versions_endpoint_success():
 
     data = response.json()
 
-    assert data["current_version"] == "mock-v1"
+    assert data["current_version"] == "test-model-v1"
     assert "versions" in data
     assert isinstance(data["versions"], list)
-    assert len(data["versions"]) == 2
+    assert len(data["versions"]) == 1
 
     active_versions = [
         version for version in data["versions"]
@@ -39,7 +41,7 @@ def test_model_versions_endpoint_success():
     ]
 
     assert len(active_versions) == 1
-    assert active_versions[0]["version"] == "mock-v1"
+    assert active_versions[0]["version"] == "test-model-v1"
 
     for version in data["versions"]:
         assert "version" in version
