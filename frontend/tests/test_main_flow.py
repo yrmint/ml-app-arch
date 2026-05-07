@@ -32,10 +32,12 @@ def test_successful_classification_flow():
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
+            "predicted_genre": "classical",
+            "confidence": 0.95,
             "top_3": [
-                {"genre": "classical", "confidence": 0.95},
-                {"genre": "jazz", "confidence": 0.03},
-                {"genre": "pop", "confidence": 0.02}
+                {"genre": "reggae", "confidence": 0.02},
+                {"genre": "jazz", "confidence": 0.02},
+                {"genre": "pop", "confidence": 0.01}
             ]
         }
         mock_post.return_value = mock_response

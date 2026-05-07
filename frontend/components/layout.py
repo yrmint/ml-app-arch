@@ -1,7 +1,7 @@
 import os
-from typing import Union, Optional, Any
 import streamlit as st
 from frontend.core.config import settings
+from frontend.services.schemas import PredictResponse
 
 
 def load_css():
@@ -69,18 +69,19 @@ def render_file_details(uploaded_file):
     st.audio(uploaded_file)
 
 
-def render_predictions(predictions_data: Union[list, Any]) -> Optional[str]:
+def render_predictions(predictions_data: PredictResponse) -> None:
     """Обработка и визуализация результатов классификации."""
-    items = predictions_data
+    items = predictions_data.top_3
     items = sorted(items, key=lambda x: x.confidence, reverse=True)
     if not items:
         st.warning("Результаты анализа не получены в ожидаемом формате.")
         return None
 
-    winner = items[0]
+    prediction = predictions_data.prediction
+    confidence = predictions_data.confidence
     st.success(
         f"Наиболее вероятный жанр: "
-        f"**{winner.genre.upper()}** ({winner.confidence:.1%})"
+        f"**{prediction.upper()}** ({confidence:.1%})"
     )
 
     with st.expander(f"Детальное распределение (Топ-{len(items)})"):
@@ -90,8 +91,6 @@ def render_predictions(predictions_data: Union[list, Any]) -> Optional[str]:
             c2.caption(f"{item.confidence:.1%}")
             conf = min(1.0, max(0.0, float(item.confidence)))
             c2.progress(conf)
-
-    return winner.genre
 
 
 def render_history():

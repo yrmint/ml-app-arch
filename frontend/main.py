@@ -61,7 +61,8 @@ def main():
             if error:
                 st.error(error)
             elif res:
-                winner_genre = render_predictions(res.predictions)
+                render_predictions(res)
+                winner_genre = res.prediction
                 if winner_genre:
                     st.session_state.history.insert(0, {
                         "file": uploaded_file.name,
