@@ -25,8 +25,7 @@ jobs:
         run: uv sync --group dev --frozen
 
       - name: Run linter
-        run: |
-          flake8 .
+        run: uv run flake8 .
 
   backend-tests:
     needs: lint
