@@ -44,7 +44,7 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: Install backend dependencies
-        run: uv sync --group backend --group dev --frozen
+        run: uv sync --group backend --group ml --group dev --frozen
 
       - name: Run backend tests
         run: uv run pytest backend/tests/ -v
