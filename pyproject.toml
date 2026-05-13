@@ -1,0 +1,68 @@
+[project]
+name = "ml-music-classifier"
+version = "0.1.0"
+description = "Music Genre Classification System"
+requires-python = ">=3.10"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    { name = "Anton Kachur" },
+    { name = "Dorsa Abbasi" },
+    { name = "Kirill Sergienko" },
+    { name = "Lada Zhilkina" },
+    { name = "Matin Dastanboo" }
+]
+
+dependencies = [
+    "pydantic-settings>=2.6.1",
+    "numpy>=2.1.0",
+]
+
+[dependency-groups]
+backend = [
+    "fastapi==0.111.0",
+    "uvicorn[standard]==0.30.1",
+    "pydantic==2.12.5",
+    "pydantic-extra-types==2.11.1",
+    "pydantic-core==2.41.5",
+    "torch==2.11.0",
+]
+
+ml = [
+    "transformers==5.6.2",
+    "torch==2.11.0",
+    "librosa==0.11.0",
+    "soundfile==0.13.1",
+]
+
+frontend = [
+    "streamlit==1.56.0",
+    "requests==2.33.1",
+    "Pillow==12.2.0",
+    "mutagen==1.47.0",
+]
+
+dev = [
+    "pytest==8.3.4",
+    "flake8==7.1.1",
+    "black",
+    "isort",
+    "pre-commit",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests", "ml/tests", "frontend/tests"]
+addopts = "-ra --tb=short"
+asyncio_mode = "auto"
+
+[tool.flake8]
+max-line-length = 100
+ignore = ["E203", "W503"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+line_length = 100

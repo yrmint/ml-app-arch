@@ -10,4 +10,6 @@ class GenrePrediction(BaseModel):
 
 class PredictResponse(BaseModel):
     """Схема всего ответа от бэкенда."""
-    predictions: List[GenrePrediction] = Field(..., alias="top_3")
+    prediction: str = Field(..., alias="predicted_genre")
+    confidence: float = Field(..., alias="confidence")
+    top_3: List[GenrePrediction] = Field(..., alias="top_3")
