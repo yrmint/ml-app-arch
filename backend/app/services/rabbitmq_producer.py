@@ -1,9 +1,14 @@
+import logging
+
 from uuid import uuid4
 from aio_pika import Message, DeliveryMode
 
 from backend.app.core.rabbitmq import get_rabbitmq_connection
 from backend.app.core.config import rabbitmq_settings
 from backend.app.tasks.audio_tasks import AudioTask
+
+
+logger = logging.getLogger(__name__)
 
 
 class RabbitMQProducer:
@@ -25,10 +30,7 @@ class RabbitMQProducer:
 
         connection = await get_rabbitmq_connection()
 
-        async with connection:
-            channel = await connection.channel()
-
-            # declare queue (durable = persists after reload)
+        async with connection.channel() as channel:
             await channel.declare_queue(
                 rabbitmq_settings.QUEUE_NAME,
                 durable=True
@@ -52,7 +54,11 @@ class RabbitMQProducer:
                 routing_key=rabbitmq_settings.QUEUE_NAME
             )
 
-            print(f"Task sent to queue: {task.task_id} | File: {filename}")
+            logger.info(
+                "Task sent to queue: %s | File: %s",
+                task.task_id,
+                filename,
+            )
             return task
 
 

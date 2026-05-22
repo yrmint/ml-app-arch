@@ -1,13 +1,12 @@
 import logging
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 from backend.app.core.config import settings
-from backend.app.models.prediction_model import PredictionResponse, Top3Item
-from backend.app.services.genre_classifier_facade import GenreClassifierFacade
-from backend.app.services.genre_service import get_genre_classifier
-
+from backend.app.models.prediction_model import TaskAcceptedResponse
+from backend.app.services.rabbitmq_producer import rabbitmq_producer
+from backend.app.tasks.audio_tasks import AudioTask
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +23,13 @@ def _get_supported_formats_text() -> str:
     )
 
 
-@router.post("/", response_model=PredictionResponse)
+@router.post(
+    "/",
+    response_model=TaskAcceptedResponse,
+    status_code=status.HTTP_202_ACCEPTED
+)
 async def predict_genre(
     audio_file: UploadFile = File(...),
-    classifier: GenreClassifierFacade = Depends(get_genre_classifier),
 ):
     """
     Receives an audio file and returns predicted genre + top-3.
@@ -85,32 +87,23 @@ async def predict_genre(
         )
 
     try:
-        predicted_genre, confidence, top_3 = classifier.predict(
-            audio_bytes=audio_bytes,
-            filename=filename,
-        )
-
-        logger.info(
-            "Prediction completed | filename=%s | predicted_genre=%s | "
-            "confidence=%.4f",
+        task: AudioTask = await rabbitmq_producer.send_audio_task(
             filename,
-            predicted_genre,
-            confidence,
+            audio_bytes
         )
 
-        return PredictionResponse(
-            predicted_genre=predicted_genre,
-            confidence=confidence,
-            top_3=[Top3Item(**item) for item in top_3],
+        return TaskAcceptedResponse(
+            task_id=task.task_id,
+            message="Task accepted"
         )
 
     except Exception as error:
         logger.exception(
-            "Prediction failed | filename=%s | error=%s",
+            "Failed to queue task | filename=%s | error=%s",
             filename,
             error,
         )
         raise HTTPException(
             status_code=500,
-            detail=f"Audio processing error: {error}",
+            detail=f"Task processing error: {error}",
         ) from error

@@ -1,5 +1,12 @@
 from pydantic import BaseModel
 from typing import List
+from uuid import UUID
+
+
+class TaskAcceptedResponse(BaseModel):
+    task_id: UUID
+    status: str = "accepted"
+    message: str = "Task accepted"
 
 
 class Top3Item(BaseModel):
