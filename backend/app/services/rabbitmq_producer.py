@@ -1,6 +1,9 @@
+import json
 import logging
 
+from pathlib import Path
 from uuid import uuid4
+
 from aio_pika import Message, DeliveryMode
 
 from backend.app.core.rabbitmq import get_rabbitmq_connection
@@ -10,6 +13,8 @@ from backend.app.services.task_service import task_service
 
 
 logger = logging.getLogger(__name__)
+
+SHARED_AUDIO_DIR = Path("/shared_audio")
 
 
 class RabbitMQProducer:
@@ -21,12 +26,25 @@ class RabbitMQProducer:
             audio_bytes: bytes
     ) -> AudioTask:
         """
-        Sends a task to queue.
+        Saves audio file and sends task to queue.
         """
+
+        task_id = uuid4()
+        file_extension = Path(filename).suffix
+        stored_filename = f"{task_id}{file_extension}"
+        file_path = SHARED_AUDIO_DIR / stored_filename
+
+        # create directory if not exists
+        SHARED_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
+
+        # save audio to shared volume
+        with open(file_path, "wb") as file:
+            file.write(audio_bytes)
+
         task = AudioTask(
-            task_id=uuid4(),
+            task_id=task_id,
             filename=filename,
-            audio_bytes=audio_bytes
+            file_path=str(file_path),
         )
 
         connection = await get_rabbitmq_connection()
@@ -37,9 +55,9 @@ class RabbitMQProducer:
                 durable=True
             )
 
-            # convert task to JSON
-            message_body = task.model_dump_json(
-                exclude={"audio_bytes"}
+            # serialize metadata only
+            message_body = json.dumps(
+                task.model_dump(mode="json")
             ).encode()
 
             # create message
@@ -55,16 +73,16 @@ class RabbitMQProducer:
                 routing_key=rabbitmq_settings.QUEUE_NAME
             )
 
-            # send to redis
             await task_service.create_task(
                 task_id=task.task_id,
                 filename=filename
             )
 
             logger.info(
-                "Task sent to queue: %s | File: %s",
+                "Task sent to queue | task_id=%s | file=%s | path=%s",
                 task.task_id,
                 filename,
+                file_path
             )
             return task
 

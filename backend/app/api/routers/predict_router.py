@@ -32,7 +32,7 @@ async def predict_genre(
     audio_file: UploadFile = File(...),
 ):
     """
-    Receives an audio file and returns predicted genre + top-3.
+    Receives an audio file, creates task and queues it.
 
     :param audio_file: audio file to be classified
     """
