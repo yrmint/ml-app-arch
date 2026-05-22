@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 from backend.app.core.config import settings
-from backend.app.models.prediction_model import TaskAcceptedResponse
+from backend.app.models.task_model import TaskAcceptedResponse
 from backend.app.services.rabbitmq_producer import rabbitmq_producer
 from backend.app.tasks.audio_tasks import AudioTask
 

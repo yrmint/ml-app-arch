@@ -13,6 +13,15 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
 
+  redis:
+    image: redis:8
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
   backend:
     build:
       context: .
@@ -26,8 +35,10 @@ services:
       - RABBITMQ_USER=guest
       - RABBITMQ_PASSWORD=guest
       - RABBITMQ_QUEUE_NAME=audio_tasks
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - rabbitmq
+      - redis
     restart: unless-stopped
     volumes:
       - ./backend:/app/backend
@@ -35,3 +46,4 @@ services:
 
 volumes:
   rabbitmq_data:
+  redis_data:

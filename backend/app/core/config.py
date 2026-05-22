@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     )
     MAX_UPLOAD_SIZE_MB: int = 25
 
+    # Redis settings
+    REDIS_URL: str = "redis://redis:6379/0"
+    REDIS_TASK_TTL: int = 3600  # 1 hour
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
