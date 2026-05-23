@@ -59,8 +59,10 @@ async def consume_tasks():
 
                     if os.path.exists(task.file_path):
                         os.remove(task.file_path)
-                        logger.info("File removed from shared volume | file_path=%s",
-                                    task.file_path)
+                        logger.info(
+                            "File removed from shared volume | file_path=%s",
+                            task.file_path
+                        )
 
                 except Exception as e:
                     logger.error(
