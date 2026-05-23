@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import os
 from aio_pika import IncomingMessage
 
 from backend.app.core.rabbitmq import get_rabbitmq_connection
@@ -56,7 +57,10 @@ async def consume_tasks():
                         result=result.model_dump()
                     )
 
-                    logger.info(f"Task {task.task_id} completed successfully")
+                    if os.path.exists(task.file_path):
+                        os.remove(task.file_path)
+                        logger.info("File removed from shared volume | file_path=%s",
+                                    task.file_path)
 
                 except Exception as e:
                     logger.error(

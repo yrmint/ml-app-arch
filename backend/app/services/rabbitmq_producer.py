@@ -41,6 +41,9 @@ class RabbitMQProducer:
         with open(file_path, "wb") as file:
             file.write(audio_bytes)
 
+        logger.info("File saved to shared volume | file_path=%s",
+                    file_path)
+
         task = AudioTask(
             task_id=task_id,
             filename=filename,
