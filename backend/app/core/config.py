@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     )
     MAX_UPLOAD_SIZE_MB: int = 25
 
+    # Redis settings
+    REDIS_URL: str = "redis://redis:6379/0"
+    REDIS_TASK_TTL: int = 3600  # 1 hour
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -27,4 +31,22 @@ class Settings(BaseSettings):
     )
 
 
+class RabbitMQSettings(BaseSettings):
+    HOST: str = "localhost"
+    PORT: int = 5672
+    USER: str = "guest"
+    PASSWORD: str = "guest"
+    VHOST: str = "/"
+    QUEUE_NAME: str = "audio_tasks"
+    EXCHANGE_NAME: str = "audio_exchange"
+    ROUTING_KEY: str = "audio.process"
+
+    model_config = SettingsConfigDict(
+        env_prefix="RABBITMQ_",
+        env_file=".env",
+        extra="ignore"
+    )
+
+
 settings = Settings()
+rabbitmq_settings = RabbitMQSettings()

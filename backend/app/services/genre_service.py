@@ -1,14 +1,30 @@
-from functools import lru_cache
+import logging
 
 from backend.app.services.genre_classifier_facade import GenreClassifierFacade
 
 
-@lru_cache(maxsize=1)
-def get_genre_classifier() -> GenreClassifierFacade:
-    """
-    Returns a shared GenreClassifierFacade instance for FastAPI dependencies.
+logger = logging.getLogger(__name__)
+_classifier: GenreClassifierFacade | None = None
 
-    The instance is cached to avoid creating the ML classifier multiple times
-    in different routers.
+
+def get_genre_classifier() -> GenreClassifierFacade:
+    global _classifier
+
+    if _classifier is None:
+        logger.info("Initializing genre classifier...")
+
+        _classifier = GenreClassifierFacade()
+
+        logger.info("Loading ML model into memory...")
+        _classifier.ml_classifier.load_model()
+
+        logger.info("ML model loaded successfully")
+
+    return _classifier
+
+
+def preload_model() -> None:
     """
-    return GenreClassifierFacade()
+    Forces model loading during worker startup.
+    """
+    get_genre_classifier()

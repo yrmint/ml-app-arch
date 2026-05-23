@@ -1,0 +1,73 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  redis:
+    image: redis:8
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: backend
+    ports:
+      - "8000:8000"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NAME=audio_tasks
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - rabbitmq
+      - redis
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app/backend
+      - ./ml:/app/ml
+      - shared_audio:/shared_audio
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: uv run backend/app/worker.py
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_QUEUE_NAME: audio_tasks
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - rabbitmq
+      - redis
+      - backend
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app/backend
+      - ./ml:/app/ml
+      - shared_audio:/shared_audio
+
+volumes:
+  rabbitmq_data:
+  redis_data:
+  shared_audio:
