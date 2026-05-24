@@ -30,7 +30,7 @@ class GenreClassifier:
         elif self._classifier == "CNN":
             self._model_name = "CNN"
             self._classifier = SciKitCNN()
-            self._classifier.load_model("./ml/models/best_model.pt")
+            self._classifier.load_model("./ml/models/model2.pt")
 
     def _validate_audio(self, audio_bytes: bytes, filename: str) -> None:
         if not audio_bytes:
