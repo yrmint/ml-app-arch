@@ -18,10 +18,13 @@ uv sync --all-groups
 ```
 
 ## How to run
-Run server as:
+Run docker container:
 ```commandline
-uvicorn backend.app.main:app
+docker compose up -d --scale worker=3
 ```
+
+You may change the number of workers.
+
 Run client as:
 ```commandline
 python -m frontend.start
