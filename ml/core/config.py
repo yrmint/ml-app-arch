@@ -19,17 +19,17 @@ class MLSettings(BaseSettings):
     )
     APP_NAME: str = "Music Genre Classifier ML"
     GENRE_LABELS: tuple[str, ...] = [
-    	"blues",
-    	"classical",
-    	"country",
-    	"disco",
-    	"hip-hop",
-    	"jazz",
-    	"metal",
-    	"pop",
-    	"reggae",
-    	"rock"
-	]
+        "blues",
+        "classical",
+        "country",
+        "disco",
+        "hip-hop",
+        "jazz",
+        "metal",
+        "pop",
+        "reggae",
+        "rock"
+    ]
 
     model_config = SettingsConfigDict(
         env_file=".env",

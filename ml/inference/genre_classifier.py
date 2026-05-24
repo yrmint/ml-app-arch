@@ -16,7 +16,9 @@ from ml.utils.utils import preprocess_audio
 class GenreClassifier:
     def __init__(self, classifier: str | None = None) -> None:
         self._model_name = None
-        self._classifier = classifier if settings.MODEL_NAME != "CNN" else "CNN"
+        self._classifier = classifier \
+            if settings.MODEL_NAME != "CNN" \
+            else "CNN"
 
     def load_model(self) -> Any:
         if self._classifier is None:
@@ -26,7 +28,7 @@ class GenreClassifier:
                 model=self._model_name,
                 top_k=settings.TOP_K,
             )
-            
+
         elif self._classifier == "CNN":
             self._model_name = "CNN"
             self._classifier = SciKitCNN()
@@ -109,7 +111,11 @@ class GenreClassifier:
             if temp_input_path is not None:
                 Path(temp_input_path).unlink(missing_ok=True)
 
-    def _load_audio(self, audio_bytes: bytes, filename: str) -> tuple[Any, int]:
+    def _load_audio(
+            self,
+            audio_bytes: bytes,
+            filename: str
+    ) -> tuple[Any, int]:
         suffix = Path(filename).suffix.lower()
 
         if suffix == ".m4a":
@@ -152,12 +158,15 @@ class GenreClassifier:
         self._validate_audio(audio_bytes, filename)
         self.load_model()
 
-		# Костыль, потом унифицировать и удалить
+        # Костыль, потом унифицировать и удалить
         if self._model_name == "CNN":
-            predictions = self._classifier.predict_genre(preprocess_audio(audio_bytes))
+            predictions = self._classifier.predict_genre(
+                preprocess_audio(audio_bytes)
+            )
 
         else:
-            audio_array, sampling_rate = self._load_audio(audio_bytes, filename)
+            audio_array, sampling_rate = (
+                self._load_audio(audio_bytes, filename))
             predictions = self._classifier(
                 {
                     "array": audio_array,
