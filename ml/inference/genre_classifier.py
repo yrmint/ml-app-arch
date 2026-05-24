@@ -9,24 +9,30 @@ import numpy as np
 from transformers import pipeline
 
 from ml.core.config import settings
+from ml.core.kernel import SciKitCNN
+from ml.utils.utils import preprocess_audio
 
 
 class GenreClassifier:
-    def __init__(self, classifier: Any | None = None) -> None:
-        self.model_name = settings.MODEL_NAME
-        self.classifier = classifier
+    def __init__(self, classifier: str | None = None) -> None:
+        self._model_name = None
+        self._classifier = classifier if settings.MODEL_NAME != "CNN" else "CNN"
 
     def load_model(self) -> Any:
-        if self.classifier is None:
-            self.classifier = pipeline(
+        if self._classifier is None:
+            self._model_name = settings.MODEL_NAME
+            self._classifier = pipeline(
                 task="audio-classification",
-                model=self.model_name,
+                model=self._model_name,
                 top_k=settings.TOP_K,
             )
+            
+        elif self._classifier == "CNN":
+            self._model_name = "CNN"
+            self._classifier = SciKitCNN()
+            self._classifier.load_model("./ml/models/best_model.pt")
 
-        return self.classifier
-
-    def validate_audio(self, audio_bytes: bytes, filename: str) -> None:
+    def _validate_audio(self, audio_bytes: bytes, filename: str) -> None:
         if not audio_bytes:
             raise ValueError("Audio bytes are empty.")
 
@@ -39,7 +45,7 @@ class GenreClassifier:
                 f"Supported formats: {supported}"
             )
 
-    def load_audio_with_ffmpeg(
+    def _load_audio_with_ffmpeg(
         self,
         audio_bytes: bytes,
         filename: str,
@@ -103,11 +109,11 @@ class GenreClassifier:
             if temp_input_path is not None:
                 Path(temp_input_path).unlink(missing_ok=True)
 
-    def load_audio(self, audio_bytes: bytes, filename: str) -> tuple[Any, int]:
+    def _load_audio(self, audio_bytes: bytes, filename: str) -> tuple[Any, int]:
         suffix = Path(filename).suffix.lower()
 
         if suffix == ".m4a":
-            return self.load_audio_with_ffmpeg(audio_bytes, filename)
+            return self._load_audio_with_ffmpeg(audio_bytes, filename)
 
         audio_file = BytesIO(audio_bytes)
 
@@ -139,19 +145,24 @@ class GenreClassifier:
             "genre": best_prediction["genre"],
             "confidence": best_prediction["confidence"],
             "top_predictions": alternative_predictions,
-            "model": self.model_name,
+            "model": self._model_name,
         }
 
     def predict(self, audio_bytes: bytes, filename: str) -> dict:
-        self.validate_audio(audio_bytes, filename)
+        self._validate_audio(audio_bytes, filename)
+        self.load_model()
 
-        audio_array, sampling_rate = self.load_audio(audio_bytes, filename)
-        classifier = self.load_model()
+		# Костыль, потом унифицировать и удалить
+        if self._model_name == "CNN":
+            predictions = self._classifier.predict_genre(preprocess_audio(audio_bytes))
 
-        predictions = classifier(
-            {
-                "array": audio_array,
-                "sampling_rate": sampling_rate,
-            }
-        )
+        else:
+            audio_array, sampling_rate = self._load_audio(audio_bytes, filename)
+            predictions = self._classifier(
+                {
+                    "array": audio_array,
+                    "sampling_rate": sampling_rate,
+                }
+            )
+
         return self.format_predictions(predictions)

@@ -196,9 +196,10 @@ datasets/
 *.m4a
 
 # Large model/checkpoint files
-models/
-*.pt
-*.pth
-*.onnx
-*.pkl
-*.joblib
+# Since models currently are tiny (<15 Mb) we will upload them into git as it is
+# models/
+# *.pt
+# *.pth
+# *.onnx
+# *.pkl
+# *.joblib
