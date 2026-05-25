@@ -12,7 +12,7 @@ class FrontendSettings(BaseSettings):
     APP_TITLE: str = "Music Genre Classifier"
     BACKEND_URL: str = "http://localhost:8000"
     FRONTEND_PORT: int = 8501
-    MAX_UPLOAD_SIZE_MB: int = 25
+    MAX_UPLOAD_SIZE_MB: int = 500
     SUPPORTED_EXTENSIONS: tuple[str, ...] = (
         ".wav",
         ".mp3",

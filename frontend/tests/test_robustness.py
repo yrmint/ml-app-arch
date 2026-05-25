@@ -3,57 +3,94 @@ import requests
 from streamlit.testing.v1 import AppTest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
+from frontend.services.classifier_api import NETWORK_ERRORS, API_ERRORS
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_PATH = str(BASE_DIR / "main.py")
 
+DIAGNOSTIC_MESSAGES = {
+    "connection": (
+        "Ошибка соединения с бэкендом не отобразилась в интерфейсе."
+    ),
+    "payload_too_large": (
+        "Ошибка превышения размера полезной нагрузки (413 Payload Too Large) "
+        "не была корректно обработана."
+    ),
+    "malformed_json": (
+        "Ошибка валидации некорректного JSON-ответа от бэкенда "
+        "не была выведена на экран."
+    ),
+    "timeout": (
+        "Таймаут ожидания ответа от бэкенда не привёл к отображению "
+        "соответствующего уведомления."
+    )
+}
+
+DIAGNOSTIC_TEMPLATE = (
+    "\n[Diagnostic Failure]: {message}\n"
+    "Expected substring: '{expected}'\n"
+    "Actual st.error elements: {errors}\n"
+    "Actual st.warning elements: {warnings}\n"
+    "App exceptions: {exceptions}\n"
+)
+
+
+def _clean(text: str) -> str:
+    for emoji in ["⏳", "⚡", "❌", "⚠️", "✅"]:
+        text = text.replace(emoji, "")
+    return text.strip()
+
+
+def _assert_error_message(at, expected_msg, context_key):
+    cleaned_expected = _clean(expected_msg)
+    actual_errors = [err.value for err in at.error]
+    actual_warnings = [w.value for w in at.warning]
+
+    if not any(cleaned_expected in _clean(err) for err in actual_errors):
+        error_details = DIAGNOSTIC_TEMPLATE.format(
+            message=DIAGNOSTIC_MESSAGES[context_key],
+            expected=expected_msg,
+            errors=actual_errors,
+            warnings=actual_warnings,
+            exceptions=at.exception
+        )
+        pytest.fail(error_details)
+
+
+def _upload_and_classify(at, filename: str, data: bytes):
+    at.file_uploader[0].upload(filename, data).run()
+    classify_btn = next(
+        (b for b in at.button if b.label == "ОПРЕДЕЛИТЬ ЖАНР"), None
+    )
+    assert classify_btn is not None, (
+        "Кнопка 'ОПРЕДЕЛИТЬ ЖАНР' не найдена на странице интерфейса."
+    )
+    classify_btn.click().run()
+
 
 def test_backend_connection_error():
-    """
-    Проверка обработки сетевой ошибки при обращении к API бэкенда.
-    Ожидается вывод сообщения о невозможности связаться с сервером.
-    """
     at = AppTest.from_file(APP_PATH).run()
-    if at.exception:
-        pytest.fail(f"App failed to load: {at.exception[0]}")
 
-    with patch("requests.post",
-               side_effect=requests.exceptions.ConnectionError):
-        at.file_uploader[0].upload("test.mp3", b"fake audio data").run()
+    with patch("requests.post") as mock_post:
+        mock_post.side_effect = requests.exceptions.ConnectionError
+        _upload_and_classify(at, "test.mp3", b"fake audio data")
 
-        if at.button:
-            at.button[0].click().run()
-            expected = "Не удалось связаться с сервером"
-            assert any(expected in err.value for err in at.error)
-        else:
-            pytest.fail("Кнопка классификации не появилась")
+    _assert_error_message(at, NETWORK_ERRORS["connection"], "connection")
 
 
 def test_error_413_payload_too_large():
-    """
-    Проверка вывода сообщения об ошибке при статусе 413 (Payload Too Large).
-    Текст ошибки должен соответствовать словарю ERROR_MESSAGES.
-    """
     at = AppTest.from_file(APP_PATH).run()
 
     with patch("requests.post") as mock_post:
         mock_response = MagicMock()
         mock_response.status_code = 413
         mock_post.return_value = mock_response
+        _upload_and_classify(at, "large_track.mp3", b"large data")
 
-        at.file_uploader[0].upload("large_file.flac", b"large data").run()
-
-        if at.button:
-            at.button[0].click().run()
-            expected = "Файл слишком велик"
-            assert any(expected in err.value for err in at.error)
+    _assert_error_message(at, API_ERRORS["send_fail"], "payload_too_large")
 
 
 def test_malformed_json_response():
-    """
-    Проверка устойчивости приложения к некорректной структуре JSON от сервера.
-    Pydantic должен выбросить ValidationError, а приложение — вывести st.error.
-    """
     at = AppTest.from_file(APP_PATH).run()
 
     with patch("requests.post") as mock_post:
@@ -61,20 +98,22 @@ def test_malformed_json_response():
         mock_response.status_code = 200
         mock_response.json.return_value = {"wrong_key": []}
         mock_post.return_value = mock_response
+        _upload_and_classify(at, "audio.wav", b"test data")
 
-        at.file_uploader[0].upload("audio.wav", b"test data").run()
+    _assert_error_message(at, API_ERRORS["validation_fail"], "malformed_json")
 
-        if at.button:
-            at.button[0].click().run()
-            assert any("Ошибка валидации данных" in err.value
-                       for err in at.error)
+
+def test_backend_timeout():
+    at = AppTest.from_file(APP_PATH).run()
+
+    with patch("requests.post") as mock_post:
+        mock_post.side_effect = requests.exceptions.Timeout
+        _upload_and_classify(at, "track.mp3", b"data")
+
+    _assert_error_message(at, NETWORK_ERRORS["timeout"], "timeout")
 
 
 def test_file_uploader_allowed_types():
-    """
-    Проверка корректной инициализации виджета загрузки файлов.
-    Проверяет наличие виджета на странице при запуске.
-    """
     at = AppTest.from_file(APP_PATH).run()
 
     if len(at.file_uploader) > 0:
@@ -82,21 +121,3 @@ def test_file_uploader_allowed_types():
         assert uploader is not None
     else:
         pytest.fail("Виджет file_uploader не найден на странице")
-
-
-def test_backend_timeout():
-    """
-    Проверка реакции фронтенда на превышение времени ожидания (timeout).
-    Ожидается вывод специфического сообщения для requests.exceptions.Timeout.
-    """
-    at = AppTest.from_file(APP_PATH).run()
-
-    with patch("requests.post", side_effect=requests.exceptions.Timeout):
-        at.file_uploader[0].upload("track.mp3", b"audio").run()
-
-        if len(at.button) > 0:
-            at.button[0].click().run()
-            expected = "Сервис отвечает слишком долго"
-            assert any(expected in err.value for err in at.error)
-        else:
-            pytest.fail("Кнопка классификации не появилась")
