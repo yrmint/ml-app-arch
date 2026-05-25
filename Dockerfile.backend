@@ -11,7 +11,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 COPY pyproject.toml uv.lock /app/
 
-RUN uv sync --group backend --group ml --group dev --frozen --no-dev
+RUN uv sync --group backend --group ml --group dev --frozen --no-dev --no-cache
 
 COPY backend/ /app/backend/
 COPY ml/ /app/ml/
