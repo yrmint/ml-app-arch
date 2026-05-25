@@ -17,7 +17,26 @@ class Settings(BaseSettings):
         ".ogg",
         ".m4a",
     )
+
+    SUPPORTED_GENRES: tuple[str, ...] = (
+        "blues",
+        "classical",
+        "country",
+        "disco",
+        "hiphop",
+        "jazz",
+        "metal",
+        "pop",
+        "reggae",
+        "rock"
+    )
+
+    SUPPORTED_ARCHIVES: tuple[str, ...] = (
+        ".zip",
+    )
+
     MAX_UPLOAD_SIZE_MB: int = 25
+    MAX_ARCHIVE_SIZE_MB: int = 500
 
     # Redis settings
     REDIS_URL: str = "redis://redis:6379/0"
