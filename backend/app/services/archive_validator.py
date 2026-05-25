@@ -9,7 +9,10 @@ def validate_finetune_archive(archive_path: Path) -> None:
     if archive_path.suffix.lower() == ".zip":
         archive = zipfile.ZipFile(archive_path)
     else:
-        raise HTTPException(status_code=415, detail="Only supported formats is .zip")
+        raise HTTPException(
+            status_code=415,
+            detail="Only supported format is .zip"
+        )
 
     with archive:
         all_files = archive.namelist()
@@ -19,7 +22,8 @@ def validate_finetune_archive(archive_path: Path) -> None:
 
         directories = set()
         has_audio = False
-        audio_extensions = {ext.lower() for ext in settings.SUPPORTED_AUDIO_EXTENSIONS}
+        audio_extensions = {ext.lower()
+                            for ext in settings.SUPPORTED_AUDIO_EXTENSIONS}
 
         for name in all_files:
             if not name or name.endswith('/'):
@@ -46,5 +50,6 @@ def validate_finetune_archive(archive_path: Path) -> None:
             raise HTTPException(
                 status_code=400,
                 detail="No folder with supported genre found in archive. "
-                       f"Supported genres: {', '.join(sorted(settings.SUPPORTED_GENRES))}"
+                       f"Supported genres: "
+                       f"{', '.join(sorted(settings.SUPPORTED_GENRES))}"
             )

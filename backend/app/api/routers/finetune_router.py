@@ -18,7 +18,12 @@ router = APIRouter(
     tags=["Finetune"],
 )
 
-@router.post("/", response_model=FinetuneAcceptedResponse, status_code=status.HTTP_200_OK)
+
+@router.post(
+    "/",
+    response_model=FinetuneAcceptedResponse,
+    status_code=status.HTTP_200_OK
+)
 async def finetune_model(
         archive_file: UploadFile = File(...)
 ):
@@ -29,11 +34,14 @@ async def finetune_model(
     if file_ext not in settings.SUPPORTED_ARCHIVES:
         raise HTTPException(
             status_code=415,
-            detail=f"Only .zip and .rar archive supported."
+            detail="Only .zip archives supported."
         )
 
     if archive_file.size > settings.MAX_ARCHIVE_SIZE_MB * 1024 * 1024:
-        raise HTTPException(status_code=413, detail=f"File too heavy (max {settings.MAX_ARCHIVE_SIZE_MB} Mb)")
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too heavy (max {settings.MAX_ARCHIVE_SIZE_MB} Mb)"
+        )
 
     try:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

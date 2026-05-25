@@ -93,7 +93,11 @@ def upload_finetune_archive(
 ) -> tuple[bool, str]:
     """Отправляет архив на эндпоинт /finetune с Basic Auth."""
     url = f"{settings.BACKEND_URL}/finetune"
-    files = {"archive_file": (file_name, file_bytes, "application/octet-stream")}
+    files = {"archive_file": (
+        file_name,
+        file_bytes,
+        "application/octet-stream"
+    )}
 
     try:
         response = requests.post(
