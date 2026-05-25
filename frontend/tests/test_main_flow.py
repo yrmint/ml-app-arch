@@ -1,37 +1,45 @@
-import pytest
 from streamlit.testing.v1 import AppTest
 from unittest.mock import patch, MagicMock
 from frontend.core.config import settings
 from pathlib import Path
+import uuid
+from datetime import datetime
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_PATH = str(BASE_DIR / "main.py")
 
 
 def test_initial_ui_state():
-    """
-    Проверка базового состояния интерфейса: наличие заголовка и загрузчика,
-    отсутствие кнопки классификации до загрузки файла.
-    """
     at = AppTest.from_file(APP_PATH).run()
-
     assert not at.exception
     assert at.title[0].value == f"🎵 {settings.APP_TITLE}"
-    assert len(at.get("file_uploader")) > 0
-    assert len(at.get("button")) == 0
+    assert len(at.file_uploader) > 0
+    assert len(at.button) == 2
 
 
-def test_successful_classification_flow():
-    """
-    Проверка полного цикла: загрузка файла, успешный ответ бэкенда по схеме
-    PredictResponse и корректное отображение результата классификации.
-    """
+@patch("frontend.services.classifier_api.requests.get")
+@patch("frontend.services.classifier_api.requests.post")
+def test_successful_classification_flow(mock_post, mock_get):
     at = AppTest.from_file(APP_PATH).run()
+    task_uuid = str(uuid.uuid4())
 
-    with patch("requests.post") as mock_post:
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
+    mock_post_response = MagicMock()
+    mock_post_response.status_code = 202
+    mock_post_response.json.return_value = {
+        "task_id": task_uuid,
+        "status": "accepted",
+        "message": "Task accepted"
+    }
+    mock_post.return_value = mock_post_response
+
+    mock_get_response = MagicMock()
+    mock_get_response.status_code = 200
+    mock_get_response.json.return_value = {
+        "task_id": task_uuid,
+        "status": "completed",
+        "filename": "track.mp3",
+        "created_at": datetime.now().isoformat(),
+        "result": {
             "predicted_genre": "classical",
             "confidence": 0.95,
             "top_3": [
@@ -40,21 +48,18 @@ def test_successful_classification_flow():
                 {"genre": "pop", "confidence": 0.01}
             ]
         }
-        mock_post.return_value = mock_response
+    }
+    mock_get.return_value = mock_get_response
 
-        at.get("file_uploader")[0].upload("track.mp3", b"fake_bytes").run()
+    at.file_uploader[0].upload("track.mp3", b"fake_bytes").run()
 
-        buttons = at.get("button")
-        if buttons:
-            buttons[0].click().run()
-        else:
-            pytest.fail(
-                "Кнопка классификации не появилась после загрузки файла")
+    classify_btn = next((b for b in at.button if b.label == "ОПРЕДЕЛИТЬ ЖАНР"),
+                        None)
+    assert classify_btn is not None, "Кнопка классификации не появилась"
 
-        success_messages = [s.value for s in at.get("success")]
-        results_found = any(
-            "CLASSICAL" in msg.upper() for msg in success_messages)
+    classify_btn.click().run()
 
-        msg = "Результат классификации не найден в блоке успеха"
-        assert results_found, msg
-        assert not at.exception
+    success_messages = [s.value for s in at.success]
+    assert any("CLASSICAL" in msg for msg in
+               success_messages), "Результат классификации не найден"
+    assert not at.exception
