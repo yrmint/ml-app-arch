@@ -43,6 +43,7 @@ services:
     volumes:
       - ./backend:/app/backend
       - ./ml:/app/ml
+      - ./data:/app/data
       - shared_audio:/shared_audio
 
   worker:
