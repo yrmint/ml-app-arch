@@ -4,7 +4,6 @@ from torch.cuda import is_available
 
 class MLSettings(BaseSettings):
     # MODEL_NAME: str = "dima806/music_genres_classification"
-    # Can we do changing model easier somehow?
     MODEL_NAME: str = "CNN"
     DEVICE: str = "cuda" if is_available() else "cpu"
     SAMPLE_RATE: int = 16000
