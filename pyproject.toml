@@ -51,9 +51,6 @@ frontend = [
 dev = [
     "pytest==8.3.4",
     "flake8==7.1.1",
-    "black",
-    "isort",
-    "pre-commit",
 	"optuna==4.8.0",
 	"optuna-dashboard==0.20.0",
 	"ipywidgets==8.1.8",
