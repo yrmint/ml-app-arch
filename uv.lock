@@ -4,15 +4,18 @@ requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "(python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
     "python_full_version >= '3.14' and sys_platform == 'darwin'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version < '3.13' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
     "python_full_version < '3.13' and sys_platform == 'emscripten'",
-    "python_full_version == '3.13.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version == '3.13.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
     "python_full_version == '3.13.*' and sys_platform == 'darwin'",
-    "python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "(python_full_version < '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.13' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version < '3.13' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
     "python_full_version < '3.13' and sys_platform == 'darwin'",
 ]
 
@@ -1363,6 +1366,8 @@ backend = [
     { name = "redis" },
     { name = "torch", version = "2.9.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.9.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
+    { name = "torchaudio", version = "2.9.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or sys_platform == 'darwin'" },
+    { name = "torchaudio", version = "2.9.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version >= '3.15' and sys_platform == 'linux') or (platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 dev = [
@@ -1387,6 +1392,8 @@ ml = [
     { name = "soundfile" },
     { name = "torch", version = "2.9.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.9.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
+    { name = "torchaudio", version = "2.9.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or sys_platform == 'darwin'" },
+    { name = "torchaudio", version = "2.9.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version >= '3.15' and sys_platform == 'linux') or (platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
     { name = "transformers" },
 ]
 
@@ -1406,6 +1413,7 @@ backend = [
     { name = "pydantic-extra-types", specifier = "==2.11.1" },
     { name = "redis", specifier = ">=5.0.0" },
     { name = "torch", specifier = "==2.9.1", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torchaudio", specifier = "==2.9.1", index = "https://download.pytorch.org/whl/cpu" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.30.1" },
 ]
 dev = [
@@ -1429,6 +1437,7 @@ ml = [
     { name = "matplotlib", specifier = "==3.10.9" },
     { name = "soundfile", specifier = "==0.13.1" },
     { name = "torch", specifier = "==2.9.1", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torchaudio", specifier = "==2.9.1", index = "https://download.pytorch.org/whl/cpu" },
     { name = "transformers", specifier = "==5.6.2" },
 ]
 
@@ -3198,13 +3207,16 @@ source = { registry = "https://download.pytorch.org/whl/cpu" }
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "(python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version < '3.13' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
     "python_full_version < '3.13' and sys_platform == 'emscripten'",
-    "python_full_version == '3.13.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version == '3.13.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version < '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.13' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version < '3.13' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "filelock", marker = "sys_platform != 'darwin'" },
@@ -3233,6 +3245,66 @@ wheels = [
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.9.1%2Bcpu-cp314-cp314t-manylinux_2_28_aarch64.whl", hash = "sha256:3ac2b8df2c55430e836dcda31940d47f1f5f94b8731057b6f20300ebea394dd9", upload-time = "2026-01-23T15:13:28Z" },
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.9.1%2Bcpu-cp314-cp314t-manylinux_2_28_x86_64.whl", hash = "sha256:5b688445f928f13563b7418b17c57e97bf955ab559cf73cd8f2b961f8572dbb3", upload-time = "2026-01-23T15:13:29Z" },
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.9.1%2Bcpu-cp314-cp314t-win_amd64.whl", hash = "sha256:cf9c3e50b595721ca6b488bdcc326e0f1af73ed28b9b66eff504a96649bb5c96", upload-time = "2026-01-23T15:13:32Z" },
+]
+
+[[package]]
+name = "torchaudio"
+version = "2.9.1"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version >= '3.14' and sys_platform == 'darwin'",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version == '3.13.*' and sys_platform == 'darwin'",
+    "python_full_version < '3.13' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version < '3.13' and sys_platform == 'darwin'",
+]
+dependencies = [
+    { name = "torch", version = "2.9.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
+    { name = "torch", version = "2.9.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:c779c0380fbba12d63f56c093dd93be1222d6cc3caf140ad1d89c4a60b28eff1", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:f6fa882b750385fdb0a2aa5215a6a04b97cf9668b37617038a814c7630b2dc8d", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp313-cp313-macosx_12_0_arm64.whl", hash = "sha256:1c521e9f70fab2e825f6b831ac314a79dc37f51c8d11cd5498c0f3c880a122e1", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:0b3fecc6bcfe46fcb905ea826ef63e9a052a6d9d1e2cd713f59a53a509fc8b5c", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:976c4106f9f1d86ecd74c1a6e1fbf903403f2a37547ba2ece262f82b0daae300", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp313-cp313t-manylinux_2_28_aarch64.whl", hash = "sha256:f5b0595fa19ee8c5ac6a997c0d14b662d9c92a08c43771698ae4c9e3f2273fdf", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:32b67a55103e9b112534312b1d196c2a6b67e21a5763bab308f35bf479857185", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp314-cp314-manylinux_2_28_aarch64.whl", hash = "sha256:0a70353ee9452068ade21d6181b5da0959f51d3869a1c811ecef17cb4d67181c", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:48dd2eba10e1a8e890548cae409511fbf03bca70ab973ba3719924dd9d72d229", upload-time = "2025-11-11T19:16:59Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1-cp314-cp314t-manylinux_2_28_aarch64.whl", hash = "sha256:04c2396bf24cd517d3b7e9fb41f1098cfac445b0a9f8ee52a1530dbc88493b29", upload-time = "2025-11-11T19:16:59Z" },
+]
+
+[[package]]
+name = "torchaudio"
+version = "2.9.1+cpu"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "python_full_version >= '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "(python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version == '3.13.*' and sys_platform == 'win32'",
+    "python_full_version < '3.13' and sys_platform == 'win32'",
+    "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
+    "python_full_version < '3.13' and sys_platform == 'emscripten'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version == '3.13.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "(python_full_version < '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.13' and platform_python_implementation != 'CPython' and sys_platform == 'linux') or (python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "torch", version = "2.9.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version >= '3.15' and sys_platform == 'linux') or (platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+]
+wheels = [
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:43cf20a2965cf081945c91d2dc8844377e5e3f1b172c0d0c18399ca3ecf1f899", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp312-cp312-win_amd64.whl", hash = "sha256:53dd3155b794019e8de2dc49d044f410e6bce081d23a0e6548c156f37dfc9d0d", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:c3cb189e9b30ff639535c1152056cc2523aecf139978f2b9b89109e2d376909e", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp313-cp313-win_amd64.whl", hash = "sha256:f5426c7766f1e6aae0f2e59967292b9c3a3a21012e12ac7dcfd138a489eca4c7", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:386141130d1f054225e483cfaa942fe0219f1340d737de9018417452b42cf994", upload-time = "2025-11-11T19:16:59Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp313-cp313t-win_amd64.whl", hash = "sha256:0306bc184da793ffbfd6ae4ef32ab39215f64f4155c762f4c54970a991638bb5", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:52f1cba0a4ea2f60dc66688fa0e6eaa3fdbd7eec04852566b24e4d8d9e258747", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp314-cp314-win_amd64.whl", hash = "sha256:b966033fd63c793664843c5e67d91281a64096b7b0583bc5ef87dfb073531f8b", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp314-cp314t-manylinux_2_28_x86_64.whl", hash = "sha256:b4ad1a226a0db2f99c82b6c57a1c9b9a156bf2cbb9b0164013c8aa1dde870746", upload-time = "2025-11-11T19:16:58Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torchaudio-2.9.1%2Bcpu-cp314-cp314t-win_amd64.whl", hash = "sha256:3d0493da49236af6691fdcc25e050240ae7d82f11af7fd9d62b2c8c80671bf3a", upload-time = "2025-11-11T19:16:58Z" },
 ]
 
 [[package]]
