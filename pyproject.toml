@@ -27,7 +27,7 @@ backend = [
     "pydantic-extra-types==2.11.1",
     "pydantic-core==2.41.5",
     "torch==2.9.1",
-	"torchaudio"
+	"torchaudio",
     "aio-pika>=9.0.0",
     "redis>=5.0.0",
 ]
