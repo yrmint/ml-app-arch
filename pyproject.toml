@@ -83,3 +83,11 @@ explicit = true
 
 [tool.uv.sources]
 torch = { index = "pytorch" }
+
+[[tool.uv.index]]
+name = "torchaudio"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torchaudio = { index = "torchaudio" }
