@@ -10,7 +10,7 @@ from transformers import pipeline
 
 from ml.core.config import settings
 from ml.core.kernel import SciKitCNN
-from ml.utils.utils import preprocess_audio
+from ml.utils.utils import preprocess_audio_torch
 
 
 class GenreClassifier:
@@ -32,7 +32,7 @@ class GenreClassifier:
         elif self._classifier == "CNN":
             self._model_name = "CNN"
             self._classifier = SciKitCNN()
-            self._classifier.load_model("./ml/models/model2.pt")
+            self._classifier.load_model("./ml/models/deploy_model.pt")
 
     def _validate_audio(self, audio_bytes: bytes, filename: str) -> None:
         if not audio_bytes:
@@ -161,7 +161,7 @@ class GenreClassifier:
         # Костыль, потом унифицировать и удалить
         if self._model_name == "CNN":
             predictions = self._classifier.predict_genre(
-                preprocess_audio(audio_bytes)
+                preprocess_audio_torch(audio_bytes)
             )
 
         else:
