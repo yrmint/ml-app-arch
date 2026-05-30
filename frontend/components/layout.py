@@ -27,7 +27,6 @@ def render_header():
             unsafe_allow_html=True
         )
 
-
         st.markdown(
             '<div class="cta-wrapper"><p class="cta-text">Выберите аудиофайл '
             'для определения жанра:</p></div>',
