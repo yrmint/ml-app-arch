@@ -12,7 +12,7 @@ APP_PATH = str(BASE_DIR / "main.py")
 def test_initial_ui_state():
     at = AppTest.from_file(APP_PATH).run()
     assert not at.exception
-    assert at.title[0].value == f"🎵 {settings.APP_TITLE}"
+    assert at.title[0].value == f"{settings.APP_TITLE}"
     assert len(at.file_uploader) > 0
     assert len(at.button) == 2
 

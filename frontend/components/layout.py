@@ -13,44 +13,19 @@ def load_css():
 
 def render_header():
     """Отрисовка заголовка и приветственного блока."""
-    st.title(f"🎵 {settings.APP_TITLE}")
+    st.title(f"{settings.APP_TITLE}")
 
     if st.session_state.get("uploader") is None and not st.session_state.get(
             "is_admin"):
         st.markdown(
             '<div class="description-block">'
             '<h3>Автоматическое определение музыкальных жанров</h3>'
-            '<p>Профессиональный сервис для мгновенной классификации '
+            '<p>Cервис для классификации '
             'аудиокомпозиций с использованием алгоритмов '
             'глубокого обучения.</p>'
             '</div>',
             unsafe_allow_html=True
         )
-
-        c1, c2, c3 = st.columns(3, gap="small")
-        with c1:
-            with st.container(border=True):
-                st.markdown(
-                    '<div class="card-header">🚀 Оперативность</div>'
-                    '<div class="card-content">Получение результата '
-                    'анализа в течение нескольких секунд</div>',
-                    unsafe_allow_html=True)
-        with c2:
-            with st.container(border=True):
-                st.markdown(
-                    '<div class="card-header">📊 Наглядность</div>'
-                    '<div class="card-content">Детальный расчет '
-                    'вероятностей по каждому жанру</div>',
-                    unsafe_allow_html=True
-                )
-        with c3:
-            with st.container(border=True):
-                st.markdown(
-                    '<div class="card-header">🔒 Безопасность</div>'
-                    '<div class="card-content">Конфиденциальная обработка '
-                    'данных без сохранения файлов</div>',
-                    unsafe_allow_html=True
-                )
 
         st.markdown(
             '<div class="cta-wrapper"><p class="cta-text">Выберите аудиофайл '

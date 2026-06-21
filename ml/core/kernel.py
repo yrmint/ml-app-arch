@@ -13,12 +13,47 @@ from copy import deepcopy
 from ml.core.config import settings
 
 
+class SpatialAttention(torch.nn.Module):
+    def __init__(self, in_channels):
+        super().__init__()
+
+        self.net = torch.nn.Sequential(
+            torch.nn.Conv2d(in_channels, 128, kernel_size=1),
+            torch.nn.BatchNorm2d(128),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(128, 1, kernel_size=1)
+        )
+
+    def forward(self, x):
+        attn = self.net(x)
+
+        B, _, H, W = attn.shape
+
+        attn = attn.view(B, 1, -1)
+        attn = torch.softmax(attn, dim=-1)
+        attn = attn.view(B, 1, H, W)
+
+        return x * attn
+
+
+class GeM(torch.nn.Module):
+    def __init__(self, p=3, eps=1e-6):
+        super().__init__()
+        self.p = torch.nn.Parameter(torch.ones(1) * p)
+        self.eps = eps
+
+    def forward(self, x):
+        return torch.nn.functional.avg_pool2d(
+            x.clamp(min=self.eps).pow(self.p),
+            (x.size(-2), x.size(-1))
+        ).pow(1. / self.p)
+
+
 class CNN(torch.nn.Module):
     @staticmethod
     def _get_conv_block(
             in_features,
             out_features,
-            dropout: float
     ) -> List[torch.nn.Module]:
         res_l = [
             torch.nn.Conv2d(
@@ -26,25 +61,20 @@ class CNN(torch.nn.Module):
                 out_features,
                 kernel_size=3,
                 padding=1,
-                # bias=False
+                bias=False
             ),
-            # torch.nn.BatchNorm2d(out_features),
-            # torch.nn.InstanceNorm2d(out_features, affine=True),
-            # torch.nn.GroupNorm(num_groups=8, num_channels=out_features),
+            torch.nn.BatchNorm2d(out_features),
             torch.nn.ReLU(),
             torch.nn.Conv2d(
                 out_features,
                 out_features,
                 kernel_size=3,
                 padding=1,
-                # bias=False
+                bias=False
             ),
-            # torch.nn.BatchNorm2d(out_features),
-            # torch.nn.InstanceNorm2d(out_features, affine=True),
-            # torch.nn.GroupNorm(num_groups=8, num_channels=out_features),
+            torch.nn.BatchNorm2d(out_features),
             torch.nn.ReLU(),
             torch.nn.MaxPool2d(kernel_size=2),
-            # torch.nn.Dropout(dropout)
         ]
 
         return res_l
@@ -65,34 +95,43 @@ class CNN(torch.nn.Module):
                 for i in range(len(channels))
                 for module in self._get_conv_block(
                     in_features=1 if i == 0 else channels[i - 1],
-                    out_features=channels[i],
-                    dropout=dropout
+                    out_features=channels[i]
                 )
             ],
         )
 
-        # final_size = 150 // (2 ** len(channels))
-        # self.adaptive_pool = torch.nn.AdaptiveAvgPool2d((4, 4))
-        self.adaptive_pool = torch.nn.AdaptiveAvgPool2d((1, 1))
+        # self.pool = torch.nn.AdaptiveAvgPool2d((4, 4))
+        self.pool = GeM()
+        self.attention = SpatialAttention(channels[-1])
 
         self.classifier = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(channels[-1], 256),
+
+            torch.nn.Linear(channels[-1], 512),
+            torch.nn.BatchNorm1d(512),
+            torch.nn.GELU(),
+            torch.nn.Dropout(dropout),
+
+            torch.nn.Linear(512, 256),
             torch.nn.BatchNorm1d(256),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(0.5),
+            torch.nn.GELU(),
+            torch.nn.Dropout(dropout * 0.75),
+
             torch.nn.Linear(256, num_classes)
         )
 
     def forward(self, X):
         X = self.features(X)
-        X = self.adaptive_pool(X)
+        X = self.attention(X)
+        # X = X * attn
+        X = self.pool(X)
         X = self.classifier(X)
         return X
 
 
 # SciKit wrapper for the model
 class SciKitCNN(BaseEstimator, ClassifierMixin):
+
     def __init__(
         self,
         X_val: Optional[Union[pd.DataFrame, np.ndarray, torch.Tensor]] = None,
@@ -163,7 +202,7 @@ class SciKitCNN(BaseEstimator, ClassifierMixin):
         self._model = CNN(channels=self.channels, num_classes=self.num_classes,
                           dropout=self.dropout).to(self.device)
 
-        optimizer = torch.optim.AdamW(
+        optimizer = torch.optim.Adam(
             self._model.parameters(),
             lr=self.lr,
             weight_decay=self.weight_decay
@@ -171,7 +210,10 @@ class SciKitCNN(BaseEstimator, ClassifierMixin):
 
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
-            "min"
+            "max",
+            patience=2,
+            factor=0.5,
+            min_lr=1e-6
             )
         criterion = torch.nn.CrossEntropyLoss(
             label_smoothing=self.label_smoothing
@@ -207,7 +249,6 @@ class SciKitCNN(BaseEstimator, ClassifierMixin):
                         [self._model(x_batch.to(self.device)).detach().cpu()
                          for (x_batch,) in val_dataloader])
                 y_pred_val = self._torch_cast(y_pred_val, dtype=torch.float32)
-                val_loss = criterion(y_pred_val, y_val).item()
                 val_score = f1_score(
                     y_true=y_val.argmax(dim=1).numpy(),
                     y_pred=y_pred_val.argmax(dim=1),
@@ -219,8 +260,8 @@ class SciKitCNN(BaseEstimator, ClassifierMixin):
                     self._patience_counter = 0
                 else:
                     self._patience_counter += 1
-
-            scheduler.step(val_loss)
+            print(scheduler.get_last_lr())
+            scheduler.step(val_score)
 
             if self.verbose_tqdm:
                 epoch_loss = running_loss / len(dataset)
@@ -245,7 +286,7 @@ class SciKitCNN(BaseEstimator, ClassifierMixin):
                   freeze: bool = True):
         assert self._model is not None, "Trying to fine tune an unfitted model"
 
-        # Optionally freeze conv layers
+        # Freeze conv layers
         if freeze:
             for param in self._model.features.parameters():
                 param.requires_grad = False
@@ -359,3 +400,29 @@ class SciKitCNN(BaseEstimator, ClassifierMixin):
             map_location=device
         )
         self._model.eval()
+
+    def extract_features(self, X):
+        assert self._model is not None
+
+        X_tensor = self._torch_cast(X, dtype=torch.float32)
+
+        loader = DataLoader(
+            TensorDataset(X_tensor),
+            batch_size=self.batch_size,
+            shuffle=False
+        )
+
+        self._model.eval()
+        embeddings = []
+
+        with torch.no_grad():
+            for (x_batch,) in loader:
+                x_batch = x_batch.to(self.device)
+
+                feats = self._model.features(x_batch)
+                feats = self._model.pool(feats)
+                feats = torch.flatten(feats, 1)
+
+                embeddings.append(feats.cpu())
+
+        return torch.cat(embeddings).numpy()
